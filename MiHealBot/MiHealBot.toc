@@ -1,0 +1,13 @@
+## Interface: 16001
+## Title: MiHealBot
+## Notes: Unit frames (solo/party/raid) con click-casting, auras, recursos, vista previa y opciones. Comando: /mhb
+## Author: Tu nombre
+## Version: 0.4
+## SavedVariables: MiHealBotDB
+
+MiHealBot.lua
+MiHealBot_Frame.lua
+MiHealBot_Preview.lua
+MiHealBot_Options.lua
+MiHealBot_Minimap.lua
+MiHealBot.xml
