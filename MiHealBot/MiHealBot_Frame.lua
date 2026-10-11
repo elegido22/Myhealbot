@@ -111,7 +111,19 @@ local function GetAuraIcon(f, kind, i)
     icon.tex = icon:CreateTexture(nil, "ARTWORK")
     icon.tex:SetAllPoints()
     icon.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    icon.count = icon:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
+    -- solo los HoTs llevan espiral de tiempo (sentido horario, sin quitar el icono)
+    if kind == "hot" then
+        icon.cd = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
+        icon.cd:SetAllPoints()
+        icon.cd:SetReverse(true)
+        if icon.cd.SetDrawEdge then icon.cd:SetDrawEdge(false) end
+        if icon.cd.SetDrawBling then icon.cd:SetDrawBling(false) end
+    end
+    -- el número de acumulaciones va en un marco superior para que la espiral no lo tape
+    local top = CreateFrame("Frame", nil, icon)
+    top:SetAllPoints()
+    top:SetFrameLevel(icon:GetFrameLevel() + 3)
+    icon.count = top:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
     icon.count:SetPoint("BOTTOMRIGHT", 1, 0)
     icon.kind = kind
     icon:SetScript("OnEnter", IconOnEnter)
@@ -142,6 +154,11 @@ function ns.PlaceAuras(f)
             local icon = list[i]
             icon:SetSize(c.size, c.size)
             icon:EnableMouse(o.auraTooltips and true or false)
+            if icon.cd then
+                icon.cd:SetDrawSwipe(c.swipe and true or false)
+                icon.cd:SetHideCountdownNumbers(not c.numbers)
+                icon.cd:SetShown((c.swipe or c.numbers) and true or false)
+            end
             icon:ClearAllPoints()
             if i > c.max then
                 icon:Hide()
@@ -575,6 +592,18 @@ local function SetupIcon(icon, unit, data, kind, index, filter, disp)
     icon.unit, icon.auraID, icon.index, icon.filter, icon.kind = unit, data.auraInstanceID, index, filter, kind
     icon.fakeSpell = nil
     icon.tex:SetTexture(data.icon)
+    if icon.cd then
+        pcall(function()
+            local dur = C_UnitAuras.GetAuraDuration and C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
+            if dur and icon.cd.SetCooldownFromDurationObject then
+                icon.cd:SetCooldownFromDurationObject(dur)
+            elseif data.duration and data.duration > 0 then
+                icon.cd:SetCooldown(data.expirationTime - data.duration, data.duration)
+            else
+                icon.cd:Clear()
+            end
+        end)
+    end
     pcall(function()
         if C_UnitAuras.GetAuraApplicationDisplayCount then
             icon.count:SetText(C_UnitAuras.GetAuraApplicationDisplayCount(unit, data.auraInstanceID, 2))

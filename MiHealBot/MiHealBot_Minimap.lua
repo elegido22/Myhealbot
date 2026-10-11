@@ -3,9 +3,10 @@ local addonName, ns = ...
 
 local btn
 
+-- Imagen propia incluida en el addon (Media/leaf.tga)
+local ICON = "Interface\\AddOns\\MiHealBot\\Media\\leaf"
 local function IconTexture()
-    local t = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(33763) -- Toque de vida
-    return t or "Interface\\Icons\\INV_Misc_Herb_Felblossom"
+    return ICON
 end
 
 local function UpdatePosition()
@@ -43,7 +44,7 @@ local function CreateButton()
     icon:SetSize(19, 19)
     icon:SetPoint("TOPLEFT", 6, -5)
     icon:SetTexture(IconTexture())
-    icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    icon:SetTexCoord(0, 1, 0, 1)
 
     local mask = btn:CreateMaskTexture()
     mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")

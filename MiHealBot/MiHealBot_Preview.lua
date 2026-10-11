@@ -86,6 +86,10 @@ local function FillFake(f, i)
                 icon.fakeSpell = id
                 icon.tex:SetTexture(SpellTex(id))
                 icon.count:SetText(j == 2 and "3" or "")
+                if icon.cd then
+                    icon.cd:SetHideCountdownNumbers(true)
+                    icon.cd:SetCooldown(GetTime() - 1200 - j * 300, 3600)
+                end
                 if kind == "debuff" then
                     local disp = (j == 1 and o.dispelHighlight and i % 3 == 1)
                     if disp then

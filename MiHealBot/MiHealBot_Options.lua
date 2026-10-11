@@ -261,7 +261,7 @@ local function BuildBar(page)
     local L, R = 20, 340
     -- vida
     MakeCycle(page, "Texto de vida", "healthText", { "none", "cur", "curmax" },
-        { "Ninguno", "Vida actual (345)", "Actual/Máxima (345/500)" }, 280):SetPoint("TOPLEFT", L, -80)
+        { "Ninguno", "Vida actual", "Actual/Máxima" }, 280):SetPoint("TOPLEFT", L, -80)
     MakeCheck(page, "Mostrar también el porcentaje", "showPct"):SetPoint("TOPLEFT", L, -108)
     MakeCycle(page, "Posición del texto", "textPos", { "B", "T", "C" },
         { "Abajo", "Arriba", "Centro" }, 280):SetPoint("TOPLEFT", L, -134)
@@ -320,11 +320,13 @@ local function BuildHots(page)
         "Añadir HoTs a la lista (nombres o IDs, con comas)")
     MakeCheck(page, "Usar la lista de HoTs de mi clase", "hot.useClass"):SetPoint("TOPLEFT", 350, -102)
     MakeCheck(page, "Quitar mis HoTs de la lista de bufos", "hot.separate"):SetPoint("TOPLEFT", 350, -124)
+    MakeCheck(page, "Espiral de tiempo restante (sentido horario)", "hot.swipe"):SetPoint("TOPLEFT", 350, -146)
+    MakeCheck(page, "Mostrar también los segundos en número", "hot.numbers"):SetPoint("TOPLEFT", 350, -168)
     MakeHint(page, "Los HoTs son tus propias curas en el tiempo (Rejuvenación, Renovar, Florecer...). "
         .. "Se detectan por el nombre del hechizo en el idioma de tu cliente.\n\n"
         .. "Si tu clase no tiene lista predefinida o quieres otros hechizos, escribe sus nombres "
         .. "en \"Añadir HoTs\", separados por comas.\n\n"
-        .. "Si la lista queda vacía, se muestran todos tus bufos sobre el aliado.", 350, -165, 290)
+        .. "Si la lista queda vacía, se muestran todos tus bufos sobre el aliado.", 350, -205, 290)
 end
 
 local function BuildPets(page)

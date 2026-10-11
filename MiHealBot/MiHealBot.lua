@@ -1,4 +1,4 @@
--- MiHealBot v0.4 - Núcleo: datos, cabeceras de grupo/mascotas, click-casting, comandos
+-- MiHealBot v0.5 - Núcleo: datos, cabeceras de grupo/mascotas, click-casting, comandos
 local addonName, ns = ...
 
 ns.buttons = {}
@@ -48,7 +48,7 @@ ns.defaults = {
         dispel = { Magic = false, Curse = false, Disease = false, Poison = false },
         buff = { show = true, only = false, size = 14, max = 4, anchor = "BOTTOMLEFT", x = 2, y = 2, grow = "RIGHT", white = "", black = "" },
         debuff = { show = true, only = false, size = 16, max = 4, anchor = "TOPRIGHT", x = -2, y = -2, grow = "LEFT", white = "", black = "" },
-        hot = { show = true, size = 14, max = 5, anchor = "BOTTOMRIGHT", x = -2, y = 2, grow = "LEFT", white = "", black = "", useClass = true, separate = true },
+        hot = { show = true, size = 14, max = 5, anchor = "BOTTOMRIGHT", x = -2, y = 2, grow = "LEFT", white = "", black = "", useClass = true, separate = true, swipe = true, numbers = false },
     },
 }
 
