@@ -360,8 +360,27 @@ SLASH_MIHEALBOT1 = "/mhb"
 ---------------------------------------------------------------------
 -- Inicio
 ---------------------------------------------------------------------
+-- Las cabeceras seguras no siempre crean el marco del jugador a tiempo al iniciar sesión:
+-- se vuelve a aplicar el diseño poco después de entrar al mundo y al cambiar el grupo.
+local refreshQueued = false
+function ns.ScheduleRefresh(delay)
+    if refreshQueued then return end
+    refreshQueued = true
+    C_Timer.After(delay or 0.5, function()
+        refreshQueued = false
+        if InCombatLockdown() then
+            ns.pendingLayout = true
+            return
+        end
+        ns.ApplyLayout()
+    end)
+end
+
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
+f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("PLAYER_ENTERING_WORLD")
+f:RegisterEvent("GROUP_ROSTER_UPDATE")
 f:RegisterEvent("PLAYER_REGEN_ENABLED")
 f:SetScript("OnEvent", function(_, event, name)
     if event == "ADDON_LOADED" and name == addonName then
@@ -392,6 +411,15 @@ f:SetScript("OnEvent", function(_, event, name)
         ns.db = db
         CreateHeaders()
         ns.ApplyLayout()
+    elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
+        if ns.db then
+            ns.ScheduleRefresh(0.3)
+            C_Timer.After(2, function()
+                if not InCombatLockdown() then ns.ApplyLayout() end
+            end)
+        end
+    elseif event == "GROUP_ROSTER_UPDATE" then
+        if ns.db then ns.ScheduleRefresh(0.2) end
     elseif event == "PLAYER_REGEN_ENABLED" then
         if ns.pendingApply then
             ns.pendingApply = false

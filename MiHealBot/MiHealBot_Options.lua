@@ -103,6 +103,97 @@ local function MakeCycle(parent, label, key, values, names, width)
     return b
 end
 
+-- Desplegable propio: un botón que abre una lista con todas las opciones
+local dropList, dropCatcher
+
+local function CloseDropdown()
+    if dropList then dropList:Hide() end
+    if dropCatcher then dropCatcher:Hide() end
+end
+
+local function OpenDropdown(anchor, values, names, current, onSelect)
+    if not dropList then
+        dropCatcher = CreateFrame("Button", nil, UIParent)
+        dropCatcher:SetAllPoints(UIParent)
+        dropCatcher:SetFrameStrata("FULLSCREEN_DIALOG")
+        dropCatcher:SetFrameLevel(1)
+        dropCatcher:SetScript("OnClick", CloseDropdown)
+        dropCatcher:Hide()
+
+        dropList = CreateFrame("Frame", nil, UIParent)
+        dropList:SetFrameStrata("FULLSCREEN_DIALOG")
+        dropList:SetFrameLevel(10)
+        dropList:EnableMouse(true)
+        local bg = dropList:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints()
+        bg:SetColorTexture(0.1, 0.1, 0.16, 1)
+        local border = dropList:CreateTexture(nil, "BACKGROUND", nil, -1)
+        border:SetPoint("TOPLEFT", -1, 1)
+        border:SetPoint("BOTTOMRIGHT", 1, -1)
+        border:SetColorTexture(0.3, 0.8, 1, 1)
+        dropList.items = {}
+        dropList:Hide()
+    end
+    local width = anchor:GetWidth()
+    for i, v in ipairs(values) do
+        local it = dropList.items[i]
+        if not it then
+            it = CreateFrame("Button", nil, dropList)
+            it:SetHeight(22)
+            local hl = it:CreateTexture(nil, "HIGHLIGHT")
+            hl:SetAllPoints()
+            hl:SetColorTexture(0.3, 0.5, 0.9, 0.5)
+            it.text = it:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+            it.text:SetPoint("LEFT", 8, 0)
+            dropList.items[i] = it
+        end
+        it:SetWidth(width)
+        it:ClearAllPoints()
+        it:SetPoint("TOPLEFT", dropList, "TOPLEFT", 0, -2 - (i - 1) * 22)
+        it.text:SetText(names[i])
+        if v == current then
+            it.text:SetTextColor(1, 0.82, 0)
+        else
+            it.text:SetTextColor(1, 1, 1)
+        end
+        it:SetScript("OnClick", function()
+            CloseDropdown()
+            onSelect(v)
+        end)
+        it:Show()
+    end
+    for i = #values + 1, #dropList.items do dropList.items[i]:Hide() end
+    dropList:SetSize(width, #values * 22 + 4)
+    dropList:ClearAllPoints()
+    dropList:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
+    dropCatcher:Show()
+    dropList:Show()
+end
+
+local function MakeDropdown(parent, label, key, values, names, width)
+    local b
+    local function text()
+        local cur = ns.GetOpt(key)
+        for i, v in ipairs(values) do
+            if v == cur then return label .. ": " .. names[i] end
+        end
+        return label
+    end
+    b = ns.MakeButton(parent, label, width or 220, function()
+        OpenDropdown(b, values, names, ns.GetOpt(key), function(v)
+            ns.SetOpt(key, v)
+            b:SetLabel(text())
+            ns.OptionsChanged()
+        end)
+    end)
+    local arrow = b:CreateTexture(nil, "OVERLAY")
+    arrow:SetSize(14, 14)
+    arrow:SetPoint("RIGHT", -6, 0)
+    arrow:SetTexture("Interface\\Buttons\\Arrow-Down-Up")
+    refreshers[#refreshers + 1] = function() b:SetLabel(text()) end
+    return b
+end
+
 local function MakeHint(parent, text, x, y, width)
     local fs = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     fs:SetPoint("TOPLEFT", x, y)
@@ -260,10 +351,10 @@ end
 local function BuildBar(page)
     local L, R = 20, 340
     -- vida
-    MakeCycle(page, "Texto de vida", "healthText", { "none", "cur", "curmax" },
+    MakeDropdown(page, "Texto de vida", "healthText", { "none", "cur", "curmax" },
         { "Ninguno", "Vida actual", "Actual/Máxima" }, 280):SetPoint("TOPLEFT", L, -80)
     MakeCheck(page, "Mostrar también el porcentaje", "showPct"):SetPoint("TOPLEFT", L, -108)
-    MakeCycle(page, "Posición del texto", "textPos", { "B", "T", "C" },
+    MakeDropdown(page, "Posición del texto", "textPos", { "B", "T", "C" },
         { "Abajo", "Arriba", "Centro" }, 280):SetPoint("TOPLEFT", L, -134)
     -- recursos
     MakeCheck(page, "Mostrar barra de recursos (maná, energía, rabia...)", "showPower"):SetPoint("TOPLEFT", L, -176)
@@ -447,6 +538,7 @@ local function CreateOptions()
     showTab(1)
 
     frame:SetScript("OnShow", RefreshAll)
+    frame:SetScript("OnHide", CloseDropdown)
     tinsert(UISpecialFrames, "MiHealBotOptions")
     RefreshAll()
     frame:Hide()

@@ -2,7 +2,7 @@
 ## Title: MiHealBot
 ## Notes: Unit frames (solo/party/raid) con click-casting, auras, recursos, vista previa y opciones. Comando: /mhb
 ## Author: Tu nombre
-## Version: 0.5
+## Version: 0.6
 ## IconTexture: Interface\AddOns\MiHealBot\Media\leaf
 ## SavedVariables: MiHealBotDB
 
