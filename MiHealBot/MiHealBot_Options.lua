@@ -35,10 +35,10 @@ local function MakeCheck(parent, label, key)
     return c
 end
 
-local function MakeSlider(parent, label, key, min, max, step)
+local function MakeSlider(parent, label, key, min, max, step, width)
     local s = CreateFrame("Slider", nil, parent)
     s:SetOrientation("HORIZONTAL")
-    s:SetSize(240, 14)
+    s:SetSize(width or 240, 14)
     s:SetMinMaxValues(min, max)
     s:SetValueStep(step)
     if s.SetObeyStepOnDrag then s:SetObeyStepOnDrag(true) end
@@ -124,6 +124,7 @@ local function OpenDropdown(anchor, values, names, current, onSelect)
         dropList:SetFrameStrata("FULLSCREEN_DIALOG")
         dropList:SetFrameLevel(10)
         dropList:EnableMouse(true)
+        dropList:SetClampedToScreen(true)
         local bg = dropList:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints()
         bg:SetColorTexture(0.1, 0.1, 0.16, 1)
@@ -330,9 +331,9 @@ local function BuildGeneral(page)
     for i, d in ipairs(checks) do
         MakeCheck(page, d[1], d[2]):SetPoint("TOPLEFT", 340, -250 - (i - 1) * 22)
     end
-    MakeCycle(page, "Orientación", "orientation", { "V", "H" }, { "Vertical", "Horizontal" })
+    MakeDropdown(page, "Orientación", "orientation", { "V", "H" }, { "Vertical", "Horizontal" })
         :SetPoint("TOPLEFT", 20, -380)
-    MakeCycle(page, "Textura de barra", "texture", { 1, 2, 3 }, ns.TEXTURE_NAMES)
+    MakeDropdown(page, "Textura de barra", "texture", { 1, 2, 3 }, ns.TEXTURE_NAMES)
         :SetPoint("TOPLEFT", 20, -408)
 
     local b1 = ns.MakeButton(page, "Vista previa", 120, function() ns.TogglePreview() end)
@@ -360,7 +361,7 @@ local function BuildBar(page)
     MakeCheck(page, "Mostrar barra de recursos (maná, energía, rabia...)", "showPower"):SetPoint("TOPLEFT", L, -176)
     MakeCheck(page, "Mostrar el % en la barra de recursos", "showPowerText"):SetPoint("TOPLEFT", L, -198)
     MakeSlider(page, "Altura de la barra de recursos", "powerHeight", 2, 14, 1):SetPoint("TOPLEFT", L, -240)
-    MakeCycle(page, "Posición del recurso", "powerPos", { "B", "T" }, { "Abajo", "Arriba" }, 280)
+    MakeDropdown(page, "Posición del recurso", "powerPos", { "B", "T" }, { "Abajo", "Arriba" }, 280)
         :SetPoint("TOPLEFT", L, -262)
     -- curación prevista
     MakeCheck(page, "Predicción de curación (mis casteos)", "showHealPred"):SetPoint("TOPLEFT", L, -304)
@@ -375,7 +376,13 @@ local function BuildBar(page)
     MakeCheck(page, "Mostrar icono de rol (tanque / sanador / dps)", "showRole"):SetPoint("TOPLEFT", R, -272)
     MakeCheck(page, "Ocultar el icono de DPS", "roleHideDps"):SetPoint("TOPLEFT", R, -294)
     MakeSlider(page, "Tamaño del icono de rol", "roleSize", 8, 24, 1):SetPoint("TOPLEFT", R, -338)
-    MakeCycle(page, "Posición del icono", "rolePos", ns.ANCHORS, ns.ANCHOR_NAMES, 240):SetPoint("TOPLEFT", R, -360)
+    MakeDropdown(page, "Posición del icono", "rolePos", ns.ANCHORS, ns.ANCHOR_NAMES, 240):SetPoint("TOPLEFT", R, -360)
+    -- marcadores de objetivo
+    MakeCheck(page, "Mostrar marcadores de objetivo (calavera, cruz...)", "showMarker"):SetPoint("TOPLEFT", R, -402)
+    MakeSlider(page, "Tamaño del marcador", "markerSize", 8, 32, 1):SetPoint("TOPLEFT", R, -446)
+    MakeDropdown(page, "Posición del marcador", "markerPos", ns.ANCHORS, ns.ANCHOR_NAMES, 240):SetPoint("TOPLEFT", R, -468)
+    MakeSlider(page, "Marcador X", "markerX", -80, 80, 1, 115):SetPoint("TOPLEFT", R, -512)
+    MakeSlider(page, "Marcador Y", "markerY", -50, 50, 1, 115):SetPoint("TOPLEFT", R + 125, -512)
 end
 
 -- kind: "buff" | "debuff" | "hot"
@@ -391,9 +398,9 @@ local function BuildAuraColumn(page, kind, x, title, onlyLabel, whiteLabel)
     MakeSlider(page, "Cantidad máxima", kind .. ".max", 1, 8, 1):SetPoint("TOPLEFT", x, -208)
     MakeSlider(page, "Desplazamiento X", kind .. ".x", -60, 60, 1):SetPoint("TOPLEFT", x, -250)
     MakeSlider(page, "Desplazamiento Y", kind .. ".y", -40, 40, 1):SetPoint("TOPLEFT", x, -292)
-    MakeCycle(page, "Posición en el marco", kind .. ".anchor", ns.ANCHORS, ns.ANCHOR_NAMES, 240)
+    MakeDropdown(page, "Posición en el marco", kind .. ".anchor", ns.ANCHORS, ns.ANCHOR_NAMES, 240)
         :SetPoint("TOPLEFT", x, -316)
-    MakeCycle(page, "Crecimiento", kind .. ".grow", ns.GROWS, ns.GROW_NAMES, 240)
+    MakeDropdown(page, "Crecimiento", kind .. ".grow", ns.GROWS, ns.GROW_NAMES, 240)
         :SetPoint("TOPLEFT", x, -344)
     MakeOptEdit(page, whiteLabel or "Mostrar solo estos (nombres o IDs, con comas)", kind .. ".white", 290)
         :SetPoint("TOPLEFT", x, -380)
@@ -423,12 +430,12 @@ end
 local function BuildPets(page)
     local L = 20
     MakeCheck(page, "Mostrar marcos de mascotas", "showPets"):SetPoint("TOPLEFT", L, -80)
-    MakeCycle(page, "Posición de las mascotas", "petPos", { "B", "R" }, { "Debajo", "A la derecha" }, 290)
+    MakeDropdown(page, "Posición de las mascotas", "petPos", { "B", "R" }, { "Debajo", "A la derecha" }, 290)
         :SetPoint("TOPLEFT", L, -108)
     MakeSlider(page, "Ancho de las mascotas", "petWidth", 30, 200, 1):SetPoint("TOPLEFT", L, -160)
     MakeSlider(page, "Alto de las mascotas", "petHeight", 12, 80, 1):SetPoint("TOPLEFT", L, -202)
     MakeSlider(page, "Tamaño de fuente", "petFontSize", 7, 14, 1):SetPoint("TOPLEFT", L, -244)
-    MakeCycle(page, "Texto de vida", "petHealthText", { "none", "cur", "curmax" },
+    MakeDropdown(page, "Texto de vida", "petHealthText", { "none", "cur", "curmax" },
         { "Ninguno", "Vida actual", "Actual/Máxima" }, 290):SetPoint("TOPLEFT", L, -272)
     MakeCheck(page, "Mostrar el porcentaje", "petShowPct"):SetPoint("TOPLEFT", L, -304)
     MakeCheck(page, "Mostrar barra de recursos", "petShowPower"):SetPoint("TOPLEFT", L, -326)

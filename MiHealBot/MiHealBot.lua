@@ -42,6 +42,7 @@ ns.defaults = {
         showMinimap = true,
         auraTooltips = true,
         showRole = true, roleSize = 12, rolePos = "TOPLEFT", roleHideDps = false,
+        showMarker = true, markerSize = 14, markerPos = "LEFT", markerX = 0, markerY = 0,
         petWidth = 64, petHeight = 22, petFontSize = 9,
         petShowPower = false, petAuras = false, petHealthText = "none", petShowPct = false,
         dispelHighlight = true, dispelFrame = true, dispelFirst = true,

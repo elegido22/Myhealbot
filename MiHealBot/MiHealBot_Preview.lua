@@ -72,6 +72,14 @@ local function FillFake(f, i)
         f.role:Hide()
     end
 
+    -- marcador de objetivo ficticio (en un marco de cada dos)
+    if o.showMarker and i % 2 == 1 then
+        SetRaidTargetIconTexture(f.marker, (i % 8) + 1)
+        f.marker:Show()
+    else
+        f.marker:Hide()
+    end
+
     -- auras ficticias
     local showAuras = (not f.isPet) or o.petAuras
     local edge = false

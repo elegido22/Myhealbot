@@ -210,6 +210,11 @@ function ns.BuildVisual(f)
     f.role = f.overlay:CreateTexture(nil, "OVERLAY")
     f.role:Hide()
 
+    -- marcador de objetivo (calavera, cruz, cuadrado, luna...)
+    f.marker = f.overlay:CreateTexture(nil, "OVERLAY")
+    f.marker:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
+    f.marker:Hide()
+
     -- borde resaltado del marco (debufos disipables)
     f.edge = {}
     for i = 1, 4 do
@@ -310,6 +315,16 @@ function ns.LayoutVisual(f)
         f.role:SetSize(o.roleSize, o.roleSize)
         local dx, dy = Inset(o.rolePos)
         f.role:SetPoint(o.rolePos, f.hp, o.rolePos, dx, dy)
+    end
+
+    -- marcador de objetivo
+    f.marker:ClearAllPoints()
+    if not o.showMarker then
+        f.marker:Hide()
+    else
+        f.marker:SetSize(o.markerSize, o.markerSize)
+        local mx, my = Inset(o.markerPos)
+        f.marker:SetPoint(o.markerPos, f.hp, o.markerPos, mx + o.markerX, my + o.markerY)
     end
 
     ns.PlaceAuras(f)
@@ -739,6 +754,20 @@ end
 ---------------------------------------------------------------------
 -- Eventos
 ---------------------------------------------------------------------
+local function UpdateMarker(f, unit)
+    if not ns.db.opts.showMarker then
+        f.marker:Hide()
+        return
+    end
+    local idx = GetRaidTargetIndex(unit)
+    if idx then
+        SetRaidTargetIconTexture(f.marker, idx)
+        f.marker:Show()
+    else
+        f.marker:Hide()
+    end
+end
+
 local function UpdateAll(f)
     local unit = f:GetAttribute("unit")
     if not unit or not UnitExists(unit) then return end
@@ -747,6 +776,7 @@ local function UpdateAll(f)
     Safe("vida", UpdateHealth, f, unit)
     Safe("recurso", UpdatePower, f, unit)
     Safe("rol", UpdateRole, f, unit)
+    Safe("marcador", UpdateMarker, f, unit)
     Safe("auras", UpdateAuras, f, unit)
     Safe("rango", UpdateRange, f, unit)
 end
@@ -802,14 +832,22 @@ end
 -- Roles: se refrescan cuando cambia el grupo, los roles o la especialización
 local roleFrame = CreateFrame("Frame")
 for _, ev in ipairs({ "GROUP_ROSTER_UPDATE", "PLAYER_ROLES_ASSIGNED",
-                      "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "PLAYER_SPECIALIZATION_CHANGED" }) do
+                      "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "PLAYER_SPECIALIZATION_CHANGED",
+                      "RAID_TARGET_UPDATE" }) do
     pcall(roleFrame.RegisterEvent, roleFrame, ev)
 end
-roleFrame:SetScript("OnEvent", function()
+roleFrame:SetScript("OnEvent", function(_, event)
     if not ns.db then return end
     for f in pairs(ns.buttons) do
         local unit = f:GetAttribute("unit")
-        if unit and UnitExists(unit) then Safe("rol", UpdateRole, f, unit) end
+        if unit and UnitExists(unit) then
+            if event == "RAID_TARGET_UPDATE" then
+                Safe("marcador", UpdateMarker, f, unit)
+            else
+                Safe("rol", UpdateRole, f, unit)
+                Safe("marcador", UpdateMarker, f, unit)
+            end
+        end
     end
 end)
 
