@@ -1,0 +1,8 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Button name="MalvaeHoTUnitTemplate" inherits="SecureUnitButtonTemplate" virtual="true">
+    <Size x="90" y="34"/>
+    <Scripts>
+      <OnLoad>MalvaeHoT_UnitButton_OnLoad(self)</OnLoad>
+    </Scripts>
+  </Button>
+</Ui>

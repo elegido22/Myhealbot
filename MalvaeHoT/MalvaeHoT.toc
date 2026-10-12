@@ -1,0 +1,15 @@
+## Interface: 16001
+## Title: MalvaeHoT
+## Notes: Unit frames de curación (solo/party/raid) con click-casting, auras, HoTs, perfiles por personaje y vista previa. Comando: /mhot. Creado por Elegido Malvae.
+## Author: |cffffd100Elegido Malvae|r
+## Version: 1.0
+## IconTexture: Interface\AddOns\MalvaeHoT\Media\leaf
+## SavedVariables: MalvaeHoTDB, MiHealBotDB
+
+MalvaeHoT.lua
+MalvaeHoT_Frame.lua
+MalvaeHoT_Profiles.lua
+MalvaeHoT_Preview.lua
+MalvaeHoT_Options.lua
+MalvaeHoT_Minimap.lua
+MalvaeHoT.xml
